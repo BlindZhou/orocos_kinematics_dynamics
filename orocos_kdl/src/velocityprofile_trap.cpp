@@ -63,28 +63,51 @@ void VelocityProfile_Trap::SetProfile(double pos1,double pos2) {
 	endpos   = pos2;
 	t1 = maxvel/maxacc;
 	double s       = sign(endpos-startpos);
+	// a*t^2 / 2
 	double deltax1 = s*maxacc*sqr(t1)/2.0;
+	// 加速到最大值和减速到0 各有一个1/2*a*t^2
+	// 这边的 deltaT 表示匀速运动的时间
 	double deltaT  = (endpos-startpos-2.0*deltax1) / (s*maxvel);
+	//当可以加速到最大加速度时, duration = 加速时间 + 匀速时间 + 减速时间
 	if (deltaT > 0.0) {
 		// plan a complete profile :
 		duration = 2*t1+deltaT;
 		t2 = duration - t1;
-	} else {
+	}
+	// 当不能加速到最大速度时
+	// 1/2*a*t^2 * 2 = endpos-startpos
+	// t1 = sqrt(endpos-startpos) / maxacc)
+	// t2 = t1
+	else 
+	{
 		// plan an incomplete profile :
 		t1 = ::sqrt((endpos-startpos)/s/maxacc);
 		duration = t1*2.0;
 		t2=t1;
 	}
+	//t1表示加速时间 duration表示总共运动时间 
+	//t2表示除加速以外的时间 即 t2=(匀速阶段) + 加速阶段 == (匀速阶段) + 减速阶段
+
+
+	// a1 b1 c1 都表示距离(位置)
+	// a2 b2 c2 都表示速度
+	// a3 b3 c3 都表示加速度
+
+	//a表示加速阶段
 	a3 = s*maxacc/2.0;
 	a2 = 0;
 	a1 = startpos;
-
+	//b表示由加速进入匀速阶段
 	b3 = 0;
+	//b2 = acc * t1
 	b2 = a2+2*a3*t1 - 2.0*b3*t1;
+	//b1 = start_pos - 1/2*acc*t1^2
 	b1 = a1+t1*(a2+a3*t1) - t1*(b2+t1*b3);
-
+	//c表示由匀速进入减速阶段
 	c3 = -s*maxacc/2.0;
+	//c2 = acc*t1 + acc*t2 = acc*(t1+t2)
 	c2 = b2+2*b3*t2 - 2.0*c3*t2;
+	//c1 = start_pos - 1/2*acc*t1^2 - 1/2*acc*t2^2
 	c1 = b1+t2*(b2+b3*t2) - t2*(c2+t2*c3);
 }
 
@@ -136,43 +159,74 @@ double VelocityProfile_Trap::Duration() const {
 	return duration;
 }
 
-double VelocityProfile_Trap::Pos(double time) const {
-	if (time < 0) {
+double VelocityProfile_Trap::Pos(double time) const 
+{
+	if (time < 0) 
+	{
 		return startpos;
-	} else if (time<t1) {
+	} 
+	else if (time<this->t1) 
+	{
 		return a1+time*(a2+a3*time);
-	} else if (time<t2) {
+	} 
+	else if (time<this->t2) 
+	{
 		return b1+time*(b2+b3*time);
-	} else if (time<=duration) {
+	} 
+	else if (time<=this->duration) 
+	{
 		return c1+time*(c2+c3*time);
-	} else {
+	} 
+	else 
+	{
 		return endpos;
 	}
 }
-double VelocityProfile_Trap::Vel(double time) const {
-	if (time < 0) {
+
+double VelocityProfile_Trap::Vel(double time) const 
+{
+	if (time < 0) 
+	{
 		return 0;
-	} else if (time<t1) {
+	} 
+	else if (time<t1) 
+	{
 		return a2+2*a3*time;
-	} else if (time<t2) {
+	} 
+	else if (time<t2) 
+	{
 		return b2+2*b3*time;
-	} else if (time<=duration) {
+	} 
+	else if (time<=duration) 
+	{
 		return c2+2*c3*time;
-	} else {
+	} 
+	else 
+	{
 		return 0;
 	}
 }
 
-double VelocityProfile_Trap::Acc(double time) const {
-	if (time < 0) {
+double VelocityProfile_Trap::Acc(double time) const 
+{
+	if (time < 0) 
+	{
 		return 0;
-	} else if (time<t1) {
+	} 
+	else if (time<t1) 
+	{
 		return 2*a3;
-	} else if (time<t2) {
+	} 
+	else if (time<t2) 
+	{
 		return 2*b3;
-	} else if (time<=duration) {
+	} 
+	else if (time<=duration) 
+	{
 		return 2*c3;
-	} else {
+	} 
+	else 
+	{
 		return 0;
 	}
 }

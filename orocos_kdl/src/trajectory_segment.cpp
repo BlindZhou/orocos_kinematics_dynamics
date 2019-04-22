@@ -47,62 +47,62 @@ namespace KDL {
 
 
 Trajectory_Segment::Trajectory_Segment(Path* _geom, VelocityProfile* _motprof, bool _aggregate):
-	motprof(_motprof),geom(_geom), aggregate(_aggregate)
+	this->motprof(_motprof),this->geom(_geom), this->aggregate(_aggregate)
 {
     // assume everything is set or at least check if Duration() != 0
 }
 
 Trajectory_Segment::Trajectory_Segment(Path* _geom, VelocityProfile* _motprof, double _duration, bool _aggregate):
-	motprof(_motprof),geom(_geom), aggregate(_aggregate)
+	this->motprof(_motprof),this->geom(_geom), this->aggregate(_aggregate)
 {
     // the duration was specified so assume motprof not yet set.
-    motprof->SetProfileDuration(0, geom->PathLength(), _duration);
+    this->motprof->SetProfileDuration(0, this->geom->PathLength(), _duration);
 }
 
 
 double Trajectory_Segment::Duration() const
 {
-	return motprof->Duration();
+	return this->motprof->Duration();
 }
 
 Frame Trajectory_Segment::Pos(double time) const
 {
-	return geom->Pos(motprof->Pos(time));
+	return this->geom->Pos(this->motprof->Pos(time));
 }
 
 Twist Trajectory_Segment::Vel(double time) const
 {
-	return geom->Vel(motprof->Pos(time),motprof->Vel(time));
+	return this->geom->Vel(this->motprof->Pos(time),this->motprof->Vel(time));
 }
 
 Twist Trajectory_Segment::Acc(double time) const
 {
-	return geom->Acc(motprof->Pos(time),motprof->Vel(time),motprof->Acc(time));
+	return this->geom->Acc(this->motprof->Pos(time),this->motprof->Vel(time),this->motprof->Acc(time));
 }
 
 
 void Trajectory_Segment::Write(std::ostream& os) const
 {
 	os << "SEGMENT[ " << std::endl;
-	os << "  ";geom->Write(os);os << std::endl;
-	os << "  ";motprof->Write(os);os << std::endl;
+	os << "  ";this->geom->Write(os);os << std::endl;
+	os << "  ";this->motprof->Write(os);os << std::endl;
 	os << "]";
 }
 
 Trajectory_Segment::~Trajectory_Segment()
 {
-    if (aggregate)
+    if (this->aggregate)
         {
-            delete motprof;
-            delete geom;
+            delete this->motprof;
+            delete this->geom;
         }
 }
 Path* Trajectory_Segment::GetPath() {
-	return geom;
+	return this->geom;
 }
 
 VelocityProfile* Trajectory_Segment::GetProfile() {
-	return motprof;
+	return this->motprof;
 }
 
 

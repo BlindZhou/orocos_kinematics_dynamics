@@ -89,9 +89,9 @@ namespace KDL {
     }
 
     void Trajectory_Composite::Add(Trajectory* elem) {
-        vt.insert(vt.end(),elem);
-        duration += elem->Duration();
-        vd.insert(vd.end(),duration);
+        this->vt.insert(this->vt.end(),elem);
+        this->duration += elem->Duration();
+        this->vd.insert(this->vd.end(),duration);
     }
 
     void Trajectory_Composite::Destroy() {
